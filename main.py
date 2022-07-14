@@ -11,7 +11,7 @@ def connect_elasticsearch(host, port):
     return es
 
 
-def create_index(index_name):
+def create_index(es_object, index_name):
     created = False
     body_books = {
         "settings": {
@@ -67,5 +67,19 @@ def create_index(index_name):
         }
     }
 
+    try:
+        if not es_object.indices.exists(index_name):
+            es_object.indices.create(index=index_name, ignore=400, body=body_books)
+            print(f"Индекс: '{index_name}' успешно создан!")
+            created = True
+        else:
+            print(f"Индекс: '{index_name}' уже существует!")
+    except Exception as ex:
+        print(str(ex))
+    finally:
+        return created
+
 if __name__ == '__main__':
-  connect_elasticsearch('localhost', 9200)
+    index_name = 'test'
+    es = connect_elasticsearch('localhost', 9200)
+    create_index(es, index_name)
