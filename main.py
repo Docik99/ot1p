@@ -90,6 +90,25 @@ def add_book(file, es_object, index, name, author, year):
         })
 
 
+def add_books(path, es_object, index):
+    files = os.listdir(path)
+    for file in files:
+        name_file = file
+        file = file.split('.')[0]
+        file_shard = file.split('-')
+        if len(file_shard) == 3:
+            name = file_shard[0].replace(' ', '')
+            author = file_shard[1]
+            year = file_shard[2].replace(' ', '')
+            with open(f"{path}/{name_file}", 'r', encoding='utf-8') as f:
+                es_object.index(index=index, doc_type='document', body={
+                    'title': name,
+                    'author': author,
+                    'year_publication': year,
+                    'text': f.read()
+                })
+
+
 def searcher(es_object, index, search):
     res = es_object.search(index=index, body=search)
     return res
