@@ -1,5 +1,19 @@
 from elasticsearch6 import Elasticsearch
 import os
+import argparse
+
+
+def arg_parse():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("command")
+    ap.add_argument("command_second", default=None)
+    ap.add_argument("-p", "--port", type=int, default=9200)
+    ap.add_argument("-o", "--host", type=str, default='elasticsearch')
+    ap.add_argument("-a", "--author")
+    ap.add_argument("-y", "--year")
+    ap.add_argument("-n", "--name")
+
+    return ap
 
 
 def connect_elasticsearch(host, port):
