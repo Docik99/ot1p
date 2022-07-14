@@ -128,7 +128,32 @@ def searcher(es_object, index, search):
     return res
 
 
+def count_books_with_words(es_object, index, word):
+    body = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match": {"text": f"{word}"}
+                    }
+                ]
+            }
+        }
+    }
+
+    res = searcher(es_object, index, body)
+    if len(res['hits']['hits']) == 0:
+        print("Not found for this word")
+        exit(0)
+    print(f"Found: {len(res['hits']['hits'])}")
+    for record in res['hits']['hits']:
+        print(f"{record['_source']['title']}, {record['_source']['author']}, "
+              f"{record['_source']['year_publication']}")
+
+
 if __name__ == '__main__':
     #args = arg_parse()
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
+    add_books('books', es, index_name)
+    count_books_with_words(es,index_name,'известием')
