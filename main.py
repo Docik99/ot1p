@@ -11,7 +11,7 @@ def connect_elasticsearch(host, port):
     return es
 
 
-def create_index(es_object, index_name):
+def create_index(es_object, index):
     created = False
     body_books = {
         "settings": {
@@ -68,21 +68,21 @@ def create_index(es_object, index_name):
     }
 
     try:
-        if not es_object.indices.exists(index_name):
-            es_object.indices.create(index=index_name, ignore=400, body=body_books)
-            print(f"Индекс: '{index_name}' успешно создан!")
+        if not es_object.indices.exists(index):
+            es_object.indices.create(index=index, ignore=400, body=body_books)
+            print(f"Индекс: '{index}' успешно создан!")
             created = True
         else:
-            print(f"Индекс: '{index_name}' уже существует!")
+            print(f"Индекс: '{index}' уже существует!")
     except Exception as ex:
         print(str(ex))
     finally:
         return created
 
 
-def add_book(file, es_object, name, author, year):
+def add_book(file, es_object, index, name, author, year):
     with open(f"input/{file}", 'r', encoding='utf-8') as f:
-        es_object.index(index=index_name, doc_type='document', body={
+        es_object.index(index=index, doc_type='document', body={
             'title': name,
             'author': author,
             'year_publication': year,
@@ -90,8 +90,11 @@ def add_book(file, es_object, name, author, year):
         })
 
 
+def searcher(es_object, index, search):
+    res = es_object.search(index=index, body=search)
+    return res
+
+
 if __name__ == '__main__':
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
-    create_index(es, index_name)
-    add_book('voyna-i-mir.txt', es, 'ВойнаИМир', 'Tolstoy', 1865)
