@@ -8,7 +8,7 @@ def arg_parse():
     ap.add_argument("command")
     ap.add_argument("second_command", nargs='?', default=None)
     ap.add_argument("-p", "--port", type=int, default=9200)
-    ap.add_argument("-u", "--host", type=str, default='elasticsearch')
+    ap.add_argument("-u", "--host", type=str, default='localhost')
     ap.add_argument("-a", "--author")
     ap.add_argument("-y", "--year")
     ap.add_argument("-n", "--name")
@@ -152,8 +152,8 @@ def count_books_with_words(es_object, index, word):
 
 
 if __name__ == '__main__':
-    #args = arg_parse()
+    args = arg_parse()
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
-    add_books('books', es, index_name)
-    count_books_with_words(es,index_name,'известием')
+    #add_book('voyna-i-mir.txt', es, index_name, args.name, args.author, args.year)
+    #count_books_with_words(es,index_name,'известием')
