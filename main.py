@@ -6,14 +6,14 @@ import argparse
 def arg_parse():
     ap = argparse.ArgumentParser()
     ap.add_argument("command")
-    ap.add_argument("command_second", default=None)
+    ap.add_argument("second_command", nargs='?', default=None)
     ap.add_argument("-p", "--port", type=int, default=9200)
-    ap.add_argument("-o", "--host", type=str, default='elasticsearch')
+    ap.add_argument("-u", "--host", type=str, default='elasticsearch')
     ap.add_argument("-a", "--author")
     ap.add_argument("-y", "--year")
     ap.add_argument("-n", "--name")
 
-    return ap
+    return ap.parse_args()
 
 
 def connect_elasticsearch(host, port):
@@ -129,5 +129,7 @@ def searcher(es_object, index, search):
 
 
 if __name__ == '__main__':
+    args = arg_parse()
+    print(args)
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
