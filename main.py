@@ -109,11 +109,11 @@ def add_books(path, es_object, index):
     for file in files:
         name_file = file
         file = file.split('.')[0]
-        file_shard = file.split('-')
+        file_shard = file.split(' - ')
         if len(file_shard) == 3:
-            name = file_shard[0].replace(' ', '')
+            name = file_shard[0]
             author = file_shard[1]
-            year = file_shard[2].replace(' ', '')
+            year = file_shard[2]
             with open(f"input/{path}/{name_file}", 'r', encoding='utf-8') as f:
                 es_object.index(index=index, doc_type='document', body={
                     'title': name,
