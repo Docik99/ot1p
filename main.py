@@ -105,7 +105,7 @@ def add_book(file, es_object, index, name, author, year):
 
 
 def add_books(path, es_object, index):
-    files = os.listdir(path)
+    files = os.listdir(f'input/{path}')
     for file in files:
         name_file = file
         file = file.split('.')[0]
@@ -114,7 +114,7 @@ def add_books(path, es_object, index):
             name = file_shard[0].replace(' ', '')
             author = file_shard[1]
             year = file_shard[2].replace(' ', '')
-            with open(f"{path}/{name_file}", 'r', encoding='utf-8') as f:
+            with open(f"input/{path}/{name_file}", 'r', encoding='utf-8') as f:
                 es_object.index(index=index, doc_type='document', body={
                     'title': name,
                     'author': author,
@@ -129,7 +129,6 @@ def searcher(es_object, index, search):
 
 
 if __name__ == '__main__':
-    args = arg_parse()
-    print(args)
+    #args = arg_parse()
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
