@@ -2,6 +2,7 @@ from elasticsearch6 import Elasticsearch
 import os
 import argparse
 from statistics import mean
+from prettytable import PrettyTable
 
 
 def arg_parse():
@@ -274,9 +275,12 @@ def top_words(es_object, index, year):
     sorted_dict = {slovo: count for slovo, count in sorted_tuples}
 
     print(f"Топ-10 самых популярных слов в книгах {year} года:\n")
+    head = ['Слово', 'Количество упоминаний']
+    table = PrettyTable(head)
     for slovo in list(sorted_dict.keys())[0:10]:
-        print(slovo, " : ", sorted_dict[slovo])
-
+        body = [slovo, sorted_dict[slovo]]
+        table.add_row(body)
+    print(table)
 
 if __name__ == '__main__':
     args = arg_parse()
