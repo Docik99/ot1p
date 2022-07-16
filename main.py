@@ -218,3 +218,9 @@ if __name__ == '__main__':
     if args.command == 'create':
         create_index(es, index_name)
         exit(0)
+    elif args.command == 'add-book':
+        if args.second_command and args.name and args.author and args.year:
+            add_book(args.second_command, es, index_name, args.name, args.author, args.year)
+        else:
+            print("Error args")
+            exit(1)
