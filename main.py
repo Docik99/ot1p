@@ -8,13 +8,13 @@ from prettytable import PrettyTable
 def arg_parse():
     ap = argparse.ArgumentParser()
     ap.add_argument("command")
-    ap.add_argument("second_command", nargs='?', default=None)
+    ap.add_argument("second_command", default=None)
     ap.add_argument("-p", "--port", type=int, default=9200)
     ap.add_argument("-s", "--host", type=str, default='localhost')
     ap.add_argument("-a", "--author")
     ap.add_argument("-y", "--year")
     ap.add_argument("-n", "--name")
-    ap.add_argument("-r", "--from")
+    ap.add_argument("-f", "--from")
     ap.add_argument("-u", "--until")
     ap.add_argument("-w", "--word")
 
@@ -99,14 +99,41 @@ def create_index(es_object, index):
         return created
 
 
+def exists(es_object, index, name, author, year):
+    exist = True
+    body = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match": {"title": f"{name}"}
+                    },
+                    {
+                        "match": {"author": f"{author}"}
+                    },
+                    {
+                        "match": {"year_publication": f"{year}"}
+                    }
+                ]
+            }
+        }
+    }
+    if len(searcher(es_object, index, body)) == 0:
+        exist = False
+    return exist
+
+
 def add_book(file, es_object, index, name, author, year):
-    with open(f"input/{file}", 'r', encoding='utf-8') as f:
-        es_object.index(index=index, doc_type='document', body={
-            'title': name,
-            'author': author,
-            'year_publication': year,
-            'text': f.read()
-        })
+    if not exists(es_object, index, name, author, year):
+        with open(f"input/{file}", 'r', encoding='utf-8') as f:
+            es_object.index(index=index, doc_type='document', body={
+                'title': name,
+                'author': author,
+                'year_publication': year,
+                'text': f.read()
+            })
+    else:
+        print('Данная книга уже существует!')
 
 
 def add_books(path, es_object, index):
@@ -177,7 +204,8 @@ def search_books(es_object, index, author, word):
         exit(0)
     print(f"Found: {len(res['hits']['hits'])}")
     for record in res['hits']['hits']:
-        print(f"{record['_source']['title']}, {record['_source']['author']}, {record['_source']['year_publication']}")
+        print(f"{record['_source']['title']}, {record['_source']['author']},"
+              f" {record['_source']['year_publication']}")
 
 
 def search_date(es_object, index, from_date, until_date, word):
@@ -282,6 +310,7 @@ def top_words(es_object, index, year):
         table.add_row(body)
     print(table)
 
+
 if __name__ == '__main__':
     args = arg_parse()
     index_name = 'test'
@@ -302,13 +331,13 @@ if __name__ == '__main__':
             print("Error args")
             exit(1)
     elif args.command == 'count-books-with-words':
-        if args.command_second:
+        if args.second_command:
             count_books_with_words(es, index_name, args.second_command)
         else:
             print("No word")
             exit(1)
     elif args.command == 'search-books':
-        if args.command_second and args.author:
+        if args.second_command and args.author:
             search_books(es, index_name, args.author, args.second_command)
         else:
             print("Error args")
