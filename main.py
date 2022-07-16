@@ -236,3 +236,9 @@ if __name__ == '__main__':
         else:
             print("No word")
             exit(1)
+    elif args.command == 'search-books':
+        if args.command_second and args.author:
+            search_books(es, index_name, args.author, args.second_command)
+        else:
+            print("Error args")
+            exit(1)
