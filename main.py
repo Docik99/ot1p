@@ -1,6 +1,7 @@
 from elasticsearch6 import Elasticsearch
 import os
 import argparse
+from statistics import mean
 
 
 def arg_parse():
@@ -225,7 +226,7 @@ def calc_date(es_object, index, author):
     years = []
     for record in res['hits']['hits']:
         years.append(int(record['_source']['year_publication']))
-    print(years)
+    print(round(mean(years)))
 
 
 if __name__ == '__main__':
