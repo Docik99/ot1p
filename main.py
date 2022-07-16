@@ -248,3 +248,6 @@ if __name__ == '__main__':
         else:
             print("Error args")
             exit(1)
+    else:
+        print("Unknown command")
+        exit(1)
