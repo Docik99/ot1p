@@ -311,7 +311,7 @@ def top_words(es_object, index, year):
     print(table)
 
 
-if __name__ == '__main__':
+def main():
     args = arg_parse()
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
@@ -363,3 +363,7 @@ if __name__ == '__main__':
     else:
         print("Unknown command")
         exit(1)
+
+
+if __name__ == '__main__':
+    main()
