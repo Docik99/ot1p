@@ -175,6 +175,37 @@ def search_books(es_object, index, author, word):
         print(f"{record['_source']['title']}, {record['_source']['author']}, {record['_source']['year_publication']}")
 
 
+def search_date(es_object, index, from_date, until_date, word):
+    body = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "range": {
+                            "year_publication": {
+                                "gte": from_date,
+                                "lte": until_date
+                            }
+                        }
+                    }
+
+                ],
+                "must_not": {
+                    "match": {"text": f"{word}"}
+                }
+            }
+        }
+    }
+    res = searcher(es_object, index, body)
+    if len(res['hits']['hits']) == 0:
+        print("Not found for this word and date range")
+        exit(0)
+    print(f"Found: {len(res['hits']['hits'])}")
+    for record in res['hits']['hits']:
+        print(f"{record['_source']['title']}, {record['_source']['author']}, "
+              f"{record['_source']['year_publication']}")
+
+
 if __name__ == '__main__':
     #args = arg_parse()
     index_name = 'test'
@@ -183,3 +214,4 @@ if __name__ == '__main__':
     #add_books('books', es, index_name)
     #count_books_with_words(es, index_name, 'известием')
     #search_books(es, index_name, 'Толстой', 'Шерер')
+    #search_date(es, index_name, 1836, 1836, 'фцаыцам')
