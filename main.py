@@ -230,3 +230,9 @@ if __name__ == '__main__':
         else:
             print("Error args")
             exit(1)
+    elif args.command == 'count-books-with-words':
+        if args.command_second:
+            count_books_with_words(es, index_name, args.second_command)
+        else:
+            print("No word")
+            exit(1)
