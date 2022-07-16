@@ -232,15 +232,33 @@ def calc_date(es_object, index, author):
     print(round(mean(years)))
 
 
+def search_by_year(elastic, index, year):
+    body = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match": {"year_publication": year}
+                    }
+                ]
+            }
+        }
+    }
+    res = searcher(elastic, index, body)
+    if len(res['hits']['hits']) == 0:
+        print("Not found for this year")
+        exit(0)
+    ids = []
+    for record in res['hits']['hits']:
+        ids.append(record['_id'])
+    print(ids)
+    return ids
+
+
 if __name__ == '__main__':
     args = arg_parse()
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
-    #add_book('voyna-i-mir.txt', es, index_name, args.name, args.author, args.year)
-    #add_books('books', es, index_name)
-    #count_books_with_words(es, index_name, 'известием')
-    #search_books(es, index_name, 'Толстой', 'Шерер')
-    #search_date(es, index_name, 1836, 1836, 'фцаыцам')
     if args.command == 'create':
         create_index(es, index_name)
         exit(0)
