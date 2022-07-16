@@ -133,6 +133,7 @@ def add_book(file, es_object, index, name, author, year):
                 'year_publication': year,
                 'text': f.read()
             })
+        print('Успешно!')
     else:
         print('Данная книга уже существует!')
 
@@ -157,6 +158,7 @@ def add_books(path, es_object, index):
                     })
             else:
                 print(f"Эта книга уже существует: {name_file.split('.')[0]}")
+    print('Загрузка завершена!')
 
 
 def searcher(es_object, index, search):
@@ -317,7 +319,7 @@ def top_words(es_object, index, year):
 
 def main():
     args = arg_parse()
-    index_name = '2018-3-09-doc-lr2'
+    index_name = '2018-3-09-doc-v1'
     es = connect_elasticsearch('localhost', 9200)
     if args.command == 'create':
         create_index(es, index_name)
