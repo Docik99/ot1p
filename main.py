@@ -8,7 +8,7 @@ from prettytable import PrettyTable
 def arg_parse():
     ap = argparse.ArgumentParser()
     ap.add_argument("command")
-    ap.add_argument("second_command", default=None)
+    ap.add_argument("second_command", nargs='?', default=None)
     ap.add_argument("-p", "--port", type=int, default=9200)
     ap.add_argument("-s", "--host", type=str, default='localhost')
     ap.add_argument("-a", "--author")
@@ -289,7 +289,7 @@ def top_words(es_object, index, year):
         "fields": ["text"]
     }
 
-    ids = search_by_year(es_object, index_name, year)
+    ids = search_by_year(es_object, index, year)
 
     for idi in ids:
         res = es_object.termvectors(index=index, doc_type="document", id=idi, body=body)
