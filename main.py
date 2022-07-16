@@ -206,6 +206,28 @@ def search_date(es_object, index, from_date, until_date, word):
               f"{record['_source']['year_publication']}")
 
 
+def calc_date(es_object, index, author):
+    body = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match": {"author": f"{author}"}
+                    }
+                ]
+            }
+        }
+    }
+    res = searcher(es_object, index, body)
+    if len(res['hits']['hits']) == 0:
+        print("Not found for this author")
+        exit(0)
+    years = []
+    for record in res['hits']['hits']:
+        years.append(int(record['_source']['year_publication']))
+    print(years)
+
+
 if __name__ == '__main__':
     args = arg_parse()
     index_name = 'test'
