@@ -224,3 +224,9 @@ if __name__ == '__main__':
         else:
             print("Error args")
             exit(1)
+    elif args.command == 'add-books':
+        if args.second_command:
+            add_books(args.second_command, es, index_name)
+        else:
+            print("Error args")
+            exit(1)
