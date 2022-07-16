@@ -6,6 +6,10 @@
 
 ## Запуск образа
 
+#### 0) Аргументы
+`usage: main.py [-h] [-p PORT] [-s HOST] [-a AUTHOR] [-y YEAR] [-n NAME]
+               [-f FROM_DATE] [-u UNTIL_DATE] command [second_command]`
+
 #### 1) Создание индекса
 `$ docker run --rm --network host 2018-3-09-doc-lr2 create`
 
