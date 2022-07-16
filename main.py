@@ -207,7 +207,7 @@ def search_date(es_object, index, from_date, until_date, word):
 
 
 if __name__ == '__main__':
-    #args = arg_parse()
+    args = arg_parse()
     index_name = 'test'
     es = connect_elasticsearch('localhost', 9200)
     #add_book('voyna-i-mir.txt', es, index_name, args.name, args.author, args.year)
@@ -215,3 +215,6 @@ if __name__ == '__main__':
     #count_books_with_words(es, index_name, 'известием')
     #search_books(es, index_name, 'Толстой', 'Шерер')
     #search_date(es, index_name, 1836, 1836, 'фцаыцам')
+    if args.command == 'create':
+        create_index(es, index_name)
+        exit(0)
