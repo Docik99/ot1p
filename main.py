@@ -9,10 +9,13 @@ def arg_parse():
     ap.add_argument("command")
     ap.add_argument("second_command", nargs='?', default=None)
     ap.add_argument("-p", "--port", type=int, default=9200)
-    ap.add_argument("-u", "--host", type=str, default='localhost')
+    ap.add_argument("-s", "--host", type=str, default='localhost')
     ap.add_argument("-a", "--author")
     ap.add_argument("-y", "--year")
     ap.add_argument("-n", "--name")
+    ap.add_argument("-r", "--from")
+    ap.add_argument("-u", "--until")
+    ap.add_argument("-w", "--word")
 
     return ap.parse_args()
 
