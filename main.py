@@ -270,6 +270,12 @@ if __name__ == '__main__':
         else:
             print("Error args")
             exit(1)
+    elif args.command == 'calc-date':
+        if args.author:
+            calc_date(es, index_name, args.author)
+        else:
+            print("Error args")
+            exit(1)
     else:
         print("Unknown command")
         exit(1)
