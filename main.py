@@ -14,9 +14,8 @@ def arg_parse():
     ap.add_argument("-a", "--author")
     ap.add_argument("-y", "--year")
     ap.add_argument("-n", "--name")
-    ap.add_argument("-f", "--from")
-    ap.add_argument("-u", "--until")
-    ap.add_argument("-w", "--word")
+    ap.add_argument("-f", "--from_date")
+    ap.add_argument("-u", "--until_date")
 
     return ap.parse_args()
 
@@ -349,8 +348,8 @@ def main():
             print("Error args")
             exit(1)
     elif args.command == 'search-dates':
-        if args.from_date and args.until_date and args.word:
-            search_date(es, index_name, args.from_date, args.until_date, args.word)
+        if args.from_date and args.until_date and args.second_command:
+            search_date(es, index_name, args.from_date, args.until_date, args.second_command)
         else:
             print("Error args")
             exit(1)
