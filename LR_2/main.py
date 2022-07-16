@@ -318,7 +318,7 @@ def top_words(es_object, index, year):
 
 def main():
     args = arg_parse()
-    index_name = '2018-3-09-doc-v1'
+    index_name = '2018-3-09-doc-lr2'
     es = connect_elasticsearch('localhost', 9200)
     if args.command == 'create':
         create_index(es, index_name)
