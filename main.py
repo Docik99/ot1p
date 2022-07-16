@@ -251,8 +251,31 @@ def search_by_year(elastic, index, year):
     ids = []
     for record in res['hits']['hits']:
         ids.append(record['_id'])
-    print(ids)
     return ids
+
+
+def top_words(es_object, index, year):
+    terms = {}
+    body = {
+        "fields": ["text"]
+    }
+
+    ids = search_by_year(es_object, index_name, year)
+
+    for idi in ids:
+        res = es_object.termvectors(index=index, doc_type="document", id=idi, body=body)
+        for term in res['term_vectors']['text']['terms'].keys():
+            if term in terms.keys():
+                terms[term] += res['term_vectors']['text']['terms'][term]['term_freq']
+            else:
+                terms[term] = res['term_vectors']['text']['terms'][term]['term_freq']
+
+    sorted_tuples = sorted(terms.items(), key=lambda item: item[1], reverse=True)
+    sorted_dict = {slovo: count for slovo, count in sorted_tuples}
+
+    print(f"Топ-10 самых популярных слов в книгах {year} года:\n")
+    for slovo in list(sorted_dict.keys())[0:10]:
+        print(slovo, " : ", sorted_dict[slovo])
 
 
 if __name__ == '__main__':
@@ -295,6 +318,12 @@ if __name__ == '__main__':
     elif args.command == 'calc-date':
         if args.author:
             calc_date(es, index_name, args.author)
+        else:
+            print("Error args")
+            exit(1)
+    elif args.command == 'top-words':
+        if args.year:
+            top_words(es, index_name, args.year)
         else:
             print("Error args")
             exit(1)
