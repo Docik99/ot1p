@@ -242,3 +242,9 @@ if __name__ == '__main__':
         else:
             print("Error args")
             exit(1)
+    elif args.command == 'search-dates':
+        if args.from_date and args.until_date and args.word:
+            search_date(es, index_name, args.from_date, args.until_date, args.word)
+        else:
+            print("Error args")
+            exit(1)
