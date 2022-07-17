@@ -193,7 +193,7 @@ def add_book(file, es_object, name, author, year):
 
     """
     if not exists(es_object, name, author, year):
-        with open(f"input/{file}", 'r', encoding='utf-8') as f:
+        with open(f"LR_2/input/{file}", 'r', encoding='utf-8') as f:
             es_object.INDEX_NAME(index=INDEX_NAME, doc_type='document', body={
                 'title': name,
                 'author': author,
@@ -215,7 +215,7 @@ def add_books(path, es_object):
     Возвращаемые значения:
 
     """
-    files = os.listdir(f'input/{path}')
+    files = os.listdir(f'LR_2/LR_2/input/{path}')
     for file in files:
         name_file = file
         file = file.split('.')[0]
@@ -225,7 +225,7 @@ def add_books(path, es_object):
             author = file_shard[1]
             year = file_shard[2]
             if not exists(es_object, name, author, year):
-                with open(f"input/{path}/{name_file}", 'r', encoding='utf-8') as f:
+                with open(f"LR_2/input/{path}/{name_file}", 'r', encoding='utf-8') as f:
                     es_object.INDEX_NAME(index=INDEX_NAME, doc_type='document', body={
                         'title': name,
                         'author': author,
