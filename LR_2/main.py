@@ -15,6 +15,7 @@ usage: main.py [-h] [-p PORT] [-s HOST] [-a AUTHOR] [-y YEAR] [-n NAME]
 """
 
 import os
+import sys
 import argparse
 from statistics import mean
 
@@ -276,7 +277,7 @@ def count_books_with_words(es_object, word):
     res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this word")
-        exit(0)
+        sys.exit(0)
     print(f"Found: {len(res['hits']['hits'])}")
     for record in res['hits']['hits']:
         print(f"{record['_source']['title']}, {record['_source']['author']}, "
@@ -311,7 +312,7 @@ def search_books(es_object, author, word):
     res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this word and author")
-        exit(0)
+        sys.exit(0)
     print(f"Found: {len(res['hits']['hits'])}")
     for record in res['hits']['hits']:
         print(f"{record['_source']['title']}, {record['_source']['author']},"
@@ -353,7 +354,7 @@ def search_date(es_object, from_date, until_date, word):
     res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this word and date range")
-        exit(0)
+        sys.exit(0)
     print(f"Found: {len(res['hits']['hits'])}")
     for record in res['hits']['hits']:
         print(f"{record['_source']['title']}, {record['_source']['author']}, "
@@ -384,7 +385,7 @@ def calc_date(es_object, author):
     res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this author")
-        exit(0)
+        sys.exit(0)
     years = []
     for record in res['hits']['hits']:
         years.append(int(record['_source']['year_publication']))
@@ -416,7 +417,7 @@ def search_by_year(es_object, year):
     res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this year")
-        exit(0)
+        sys.exit(0)
     ids = []
     for record in res['hits']['hits']:
         ids.append(record['_id'])
@@ -466,52 +467,52 @@ def main():
     elastic = connect_elasticsearch('localhost', 9200)
     if args.command == 'create':
         create_index(elastic)
-        exit(0)
+        sys.exit(0)
     elif args.command == 'add-book':
         if args.second_command and args.name and args.author and args.year:
             add_book(args.second_command, elastic, args.name, args.author, args.year)
         else:
             print("Error args")
-            exit(1)
+            sys.exit(1)
     elif args.command == 'add-books':
         if args.second_command:
             add_books(args.second_command, elastic)
         else:
             print("Error args")
-            exit(1)
+            sys.exit(1)
     elif args.command == 'count-books-with-words':
         if args.second_command:
             count_books_with_words(elastic, args.second_command)
         else:
             print("No word")
-            exit(1)
+            sys.exit(1)
     elif args.command == 'search-books':
         if args.second_command and args.author:
             search_books(elastic, args.author, args.second_command)
         else:
             print("Error args")
-            exit(1)
+            sys.exit(1)
     elif args.command == 'search-dates':
         if args.from_date and args.until_date and args.second_command:
             search_date(elastic, args.from_date, args.until_date, args.second_command)
         else:
             print("Error args")
-            exit(1)
+            sys.exit(1)
     elif args.command == 'calc-date':
         if args.author:
             calc_date(elastic, args.author)
         else:
             print("Error args")
-            exit(1)
+            sys.exit(1)
     elif args.command == 'top-words':
         if args.year:
             top_words(elastic, args.year)
         else:
             print("Error args")
-            exit(1)
+            sys.exit(1)
     else:
         print("Unknown command")
-        exit(1)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
