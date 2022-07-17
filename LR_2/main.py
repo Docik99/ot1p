@@ -26,20 +26,20 @@ def arg_parse():
     """Обработка аргументов командной строки
 
     Возвращаемые значения:
-        ap: введенные аргументы
+        argument: введенные аргументы
     """
-    ap = argparse.ArgumentParser()
-    ap.add_argument("command")
-    ap.add_argument("second_command", nargs='?', default=None)
-    ap.add_argument("-p", "--port", type=int, default=9200)
-    ap.add_argument("-s", "--host", type=str, default='localhost')
-    ap.add_argument("-a", "--author")
-    ap.add_argument("-y", "--year")
-    ap.add_argument("-n", "--name")
-    ap.add_argument("-f", "--from_date")
-    ap.add_argument("-u", "--until_date")
+    argument = argparse.ArgumentParser()
+    argument.add_argument("command")
+    argument.add_argument("second_command", nargs='?', default=None)
+    argument.add_argument("-p", "--port", type=int, default=9200)
+    argument.add_argument("-s", "--host", type=str, default='localhost')
+    argument.add_argument("-a", "--author")
+    argument.add_argument("-y", "--year")
+    argument.add_argument("-n", "--name")
+    argument.add_argument("-f", "--from_date")
+    argument.add_argument("-u", "--until_date")
 
-    return ap.parse_args()
+    return argument.parse_args()
 
 
 def connect_elasticsearch(host, port):
@@ -50,15 +50,15 @@ def connect_elasticsearch(host, port):
         port: порт для подключения
 
     Возвращаемые значения:
-        es: объект подключения
+        elastic: объект подключения
 
     """
-    es = Elasticsearch([{'host': host, 'port': port}])
-    if es.ping():
+    elastic = Elasticsearch([{'host': host, 'port': port}])
+    if elastic.ping():
         print('Connect')
     else:
         print('Not connect!')
-    return es
+    return elastic
 
 
 def create_index(es_object, index):
@@ -472,49 +472,49 @@ def main():
     """Передача аргументов командной строки исполняемым функциям"""
     args = arg_parse()
     index_name = '2018-3-09-doc-lr2'
-    es = connect_elasticsearch('localhost', 9200)
+    elastic = connect_elasticsearch('localhost', 9200)
     if args.command == 'create':
-        create_index(es, index_name)
+        create_index(elastic, index_name)
         exit(0)
     elif args.command == 'add-book':
         if args.second_command and args.name and args.author and args.year:
-            add_book(args.second_command, es, index_name, args.name, args.author, args.year)
+            add_book(args.second_command, elastic, index_name, args.name, args.author, args.year)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'add-books':
         if args.second_command:
-            add_books(args.second_command, es, index_name)
+            add_books(args.second_command, elastic, index_name)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'count-books-with-words':
         if args.second_command:
-            count_books_with_words(es, index_name, args.second_command)
+            count_books_with_words(elastic, index_name, args.second_command)
         else:
             print("No word")
             exit(1)
     elif args.command == 'search-books':
         if args.second_command and args.author:
-            search_books(es, index_name, args.author, args.second_command)
+            search_books(elastic, index_name, args.author, args.second_command)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'search-dates':
         if args.from_date and args.until_date and args.second_command:
-            search_date(es, index_name, args.from_date, args.until_date, args.second_command)
+            search_date(elastic, index_name, args.from_date, args.until_date, args.second_command)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'calc-date':
         if args.author:
-            calc_date(es, index_name, args.author)
+            calc_date(elastic, index_name, args.author)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'top-words':
         if args.year:
-            top_words(es, index_name, args.year)
+            top_words(elastic, index_name, args.year)
         else:
             print("Error args")
             exit(1)
