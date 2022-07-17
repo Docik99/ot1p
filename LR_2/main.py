@@ -215,7 +215,7 @@ def add_books(path, es_object):
     Возвращаемые значения:
 
     """
-    files = os.listdir(f'LR_2/LR_2/input/{path}')
+    files = os.listdir(f'LR_2/input/{path}')
     for file in files:
         name_file = file
         file = file.split('.')[0]
