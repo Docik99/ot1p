@@ -450,7 +450,7 @@ def top_words(es_object, year):
                 terms[term] = res['term_vectors']['text']['terms'][term]['term_freq']
 
     sorted_tuples = sorted(terms.items(), key=lambda item: item[1], reverse=True)
-    sorted_dict = {slovo: count for slovo, count in sorted_tuples}
+    sorted_dict = dict(sorted_tuples)
 
     print(f"Топ-10 самых популярных слов в книгах {year} года:\n")
     head = ['Слово', 'Количество упоминаний']
