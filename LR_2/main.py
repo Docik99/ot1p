@@ -193,12 +193,12 @@ def add_book(file, es_object, name, author, year):
 
     """
     if not exists(es_object, name, author, year):
-        with open(f"LR_2/input/{file}", 'r', encoding='utf-8') as f:
+        with open(f"LR_2/input/{file}", 'r', encoding='utf-8') as read_file:
             es_object.INDEX_NAME(index=INDEX_NAME, doc_type='document', body={
                 'title': name,
                 'author': author,
                 'year_publication': year,
-                'text': f.read()
+                'text': read_file.read()
             })
         print('Успешно!')
     else:
@@ -225,12 +225,12 @@ def add_books(path, es_object):
             author = file_shard[1]
             year = file_shard[2]
             if not exists(es_object, name, author, year):
-                with open(f"LR_2/input/{path}/{name_file}", 'r', encoding='utf-8') as f:
+                with open(f"LR_2/input/{path}/{name_file}", 'r', encoding='utf-8') as read_file:
                     es_object.INDEX_NAME(index=INDEX_NAME, doc_type='document', body={
                         'title': name,
                         'author': author,
                         'year_publication': year,
-                        'text': f.read()
+                        'text': read_file.read()
                     })
             else:
                 print(f"Эта книга уже существует: {name_file.split('.')[0]}")
