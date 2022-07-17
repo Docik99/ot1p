@@ -136,8 +136,8 @@ def create_index(es_object, index):
             print(f"Индекс: '{index}' уже существует!")
     except TypeError as ex:
         print(str(ex))
-    finally:
-        return created
+
+    return created
 
 
 def exists(es_object, index, name, author, year):
