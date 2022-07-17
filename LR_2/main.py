@@ -8,9 +8,10 @@ usage: main.py [-h] [-p PORT] [-s HOST] [-a AUTHOR] [-y YEAR] [-n NAME]
 2) Загрузка заданного файла (add-book)
 3) Загрузка всех файлов в каталоге (add-books)
 4) Поиск всех книг с заданным словом (count-books-with-words)
-5) Поиск всех книги заданного автора, которые содержат заданную строку (search-books)
-6) Поиск всех из указанного диапазона годов, которые НЕ содержат заданную строку (search-dates)
-7) Топ-10 самых популярных слов с количеством их упоминаний во всех книгах одного года (top-words)
+5) Поиск всех книг заданного автора, которые содержат заданную строку (search-books)
+6) Поиск всех книг из указанного диапазона годов, которые НЕ содержат заданную строку (search-dates)
+7) Вычислить среднее арифметическое для года издания заданного автора
+8) Топ-10 самых популярных слов с количеством их упоминаний во всех книгах одного года (top-words)
 """
 
 import os
@@ -22,6 +23,11 @@ from elasticsearch6 import Elasticsearch
 
 
 def arg_parse():
+    """Обработка аргументов командной строки
+
+    Возвращаемые значения:
+        ap: введенные аргументы
+    """
     ap = argparse.ArgumentParser()
     ap.add_argument("command")
     ap.add_argument("second_command", nargs='?', default=None)
@@ -37,6 +43,16 @@ def arg_parse():
 
 
 def connect_elasticsearch(host, port):
+    """Подключение к Elasticsearch
+
+    Аргументы:
+        host: имя хоста для подключения
+        port: порт для подключения
+
+    Возвращаемые значения:
+        es: объект подключения
+
+    """
     es = Elasticsearch([{'host': host, 'port': port}])
     if es.ping():
         print('Connect')
@@ -46,6 +62,16 @@ def connect_elasticsearch(host, port):
 
 
 def create_index(es_object, index):
+    """Создание индекса
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+
+    Возвращаемые значения:
+        created: был ли создан новый индекс (True/False)
+
+    """
     created = False
     body_books = {
         "settings": {
@@ -115,6 +141,19 @@ def create_index(es_object, index):
 
 
 def exists(es_object, index, name, author, year):
+    """Проверка существования книги
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        name: название книги
+        author: автор
+        year: год публикации
+
+    Возвращаемые значения:
+        exist: существует ли данная книга в заданом индексе (True/False)
+
+    """
     exist = True
     body = {
         "query": {
@@ -140,6 +179,19 @@ def exists(es_object, index, name, author, year):
 
 
 def add_book(file, es_object, index, name, author, year):
+    """Загрузка заданного файла
+
+    Аргументы:
+        file: название файла
+        es_object: объект подключения
+        index: название индекса
+        name: название книги
+        author: автор
+        year: год публикации
+
+    Возвращаемые значения:
+
+    """
     if not exists(es_object, index, name, author, year):
         with open(f"input/{file}", 'r', encoding='utf-8') as f:
             es_object.index(index=index, doc_type='document', body={
@@ -154,6 +206,16 @@ def add_book(file, es_object, index, name, author, year):
 
 
 def add_books(path, es_object, index):
+    """Загрузка всех файлов в каталоге
+
+    Аргументы:
+        path: путь к каталогу
+        es_object: объект подключения
+        index: название индекса
+
+    Возвращаемые значения:
+
+    """
     files = os.listdir(f'input/{path}')
     for file in files:
         name_file = file
@@ -177,11 +239,31 @@ def add_books(path, es_object, index):
 
 
 def searcher(es_object, index, search):
+    """Поиск в индексе по определенному запросу
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        search: запрос
+
+    Возвращаемые значения:
+        res: результат поиска
+    """
     res = es_object.search(index=index, body=search)
     return res
 
 
 def count_books_with_words(es_object, index, word):
+    """Вывод всех книг с заданным словом
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        word: слово
+
+    Возвращаемые значения:
+
+    """
     body = {
         "query": {
             "bool": {
@@ -205,6 +287,17 @@ def count_books_with_words(es_object, index, word):
 
 
 def search_books(es_object, index, author, word):
+    """Вывод всех книг заданного автора, которые содержат заданную строку
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        author: автор
+        word: строка
+
+    Возвращаемые значения:
+
+    """
     body = {
         "query": {
             "bool": {
@@ -230,6 +323,18 @@ def search_books(es_object, index, author, word):
 
 
 def search_date(es_object, index, from_date, until_date, word):
+    """Вывод всех книг из указанного диапазона годов, которые НЕ содержат заданную строку
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        from_date: начальный год
+        until_date: конечный год
+        word: строка
+
+    Возвращаемые значения:
+
+    """
     body = {
         "query": {
             "bool": {
@@ -261,6 +366,16 @@ def search_date(es_object, index, from_date, until_date, word):
 
 
 def calc_date(es_object, index, author):
+    """Вывод среднего арифметического для года издания заданного автора
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        author: автор
+
+    Возвращаемые значения:
+
+    """
     body = {
         "query": {
             "bool": {
@@ -282,7 +397,18 @@ def calc_date(es_object, index, author):
     print(round(mean(years)))
 
 
-def search_by_year(elastic, index, year):
+def search_by_year(es_object, index, year):
+    """Поиск книг по году
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        year: год публикации
+
+    Возвращаемые значения:
+        res: результат поиска
+
+    """
     body = {
         "query": {
             "bool": {
@@ -294,7 +420,7 @@ def search_by_year(elastic, index, year):
             }
         }
     }
-    res = searcher(elastic, index, body)
+    res = searcher(es_object, index, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this year")
         exit(0)
@@ -305,6 +431,16 @@ def search_by_year(elastic, index, year):
 
 
 def top_words(es_object, index, year):
+    """Вывод топ-10 самых популярных слов с количеством их упоминаний во всех книгах одного года
+
+    Аргументы:
+        es_object: объект подключения
+        index: название индекса
+        year: год публикации
+
+    Возвращаемые значения:
+
+    """
     terms = {}
     body = {
         "fields": ["text"]
@@ -333,6 +469,7 @@ def top_words(es_object, index, year):
 
 
 def main():
+    """Передача аргументов командной строки исполняемым функциям"""
     args = arg_parse()
     index_name = '2018-3-09-doc-lr2'
     es = connect_elasticsearch('localhost', 9200)
