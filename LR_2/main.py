@@ -22,6 +22,9 @@ from prettytable import PrettyTable
 from elasticsearch6 import Elasticsearch
 
 
+INDEX_NAME = '2018-3-09-doc-lr2'
+
+
 def arg_parse():
     """Обработка аргументов командной строки
 
@@ -61,12 +64,11 @@ def connect_elasticsearch(host, port):
     return elastic
 
 
-def create_index(es_object, index):
+def create_index(es_object):
     """Создание индекса
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
 
     Возвращаемые значения:
         created: был ли создан новый индекс (True/False)
@@ -128,24 +130,23 @@ def create_index(es_object, index):
     }
 
     try:
-        if not es_object.indices.exists(index):
-            es_object.indices.create(index=index, ignore=400, body=body_books)
-            print(f"Индекс: '{index}' успешно создан!")
+        if not es_object.indices.exists(INDEX_NAME):
+            es_object.indices.create(index=INDEX_NAME, ignore=400, body=body_books)
+            print(f"Индекс: '{INDEX_NAME}' успешно создан!")
             created = True
         else:
-            print(f"Индекс: '{index}' уже существует!")
+            print(f"Индекс: '{INDEX_NAME}' уже существует!")
     except TypeError as ex:
         print(str(ex))
 
     return created
 
 
-def exists(es_object, index, name, author, year):
+def exists(es_object, name, author, year):
     """Проверка существования книги
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         name: название книги
         author: автор
         year: год публикации
@@ -172,19 +173,18 @@ def exists(es_object, index, name, author, year):
             }
         }
     }
-    res = searcher(es_object, index, body)
+    res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         exist = False
     return exist
 
 
-def add_book(file, es_object, index, name, author, year):
+def add_book(file, es_object, name, author, year):
     """Загрузка заданного файла
 
     Аргументы:
         file: название файла
         es_object: объект подключения
-        index: название индекса
         name: название книги
         author: автор
         year: год публикации
@@ -192,9 +192,9 @@ def add_book(file, es_object, index, name, author, year):
     Возвращаемые значения:
 
     """
-    if not exists(es_object, index, name, author, year):
+    if not exists(es_object, name, author, year):
         with open(f"input/{file}", 'r', encoding='utf-8') as f:
-            es_object.index(index=index, doc_type='document', body={
+            es_object.INDEX_NAME(index=INDEX_NAME, doc_type='document', body={
                 'title': name,
                 'author': author,
                 'year_publication': year,
@@ -205,13 +205,12 @@ def add_book(file, es_object, index, name, author, year):
         print('Данная книга уже существует!')
 
 
-def add_books(path, es_object, index):
+def add_books(path, es_object):
     """Загрузка всех файлов в каталоге
 
     Аргументы:
         path: путь к каталогу
         es_object: объект подключения
-        index: название индекса
 
     Возвращаемые значения:
 
@@ -225,9 +224,9 @@ def add_books(path, es_object, index):
             name = file_shard[0]
             author = file_shard[1]
             year = file_shard[2]
-            if not exists(es_object, index, name, author, year):
+            if not exists(es_object, name, author, year):
                 with open(f"input/{path}/{name_file}", 'r', encoding='utf-8') as f:
-                    es_object.index(index=index, doc_type='document', body={
+                    es_object.INDEX_NAME(index=INDEX_NAME, doc_type='document', body={
                         'title': name,
                         'author': author,
                         'year_publication': year,
@@ -238,27 +237,25 @@ def add_books(path, es_object, index):
     print('Загрузка завершена!')
 
 
-def searcher(es_object, index, search):
+def searcher(es_object, search):
     """Поиск в индексе по определенному запросу
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         search: запрос
 
     Возвращаемые значения:
         res: результат поиска
     """
-    res = es_object.search(index=index, body=search)
+    res = es_object.search(index=INDEX_NAME, body=search)
     return res
 
 
-def count_books_with_words(es_object, index, word):
+def count_books_with_words(es_object, word):
     """Вывод всех книг с заданным словом
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         word: слово
 
     Возвращаемые значения:
@@ -276,7 +273,7 @@ def count_books_with_words(es_object, index, word):
         }
     }
 
-    res = searcher(es_object, index, body)
+    res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this word")
         exit(0)
@@ -286,12 +283,11 @@ def count_books_with_words(es_object, index, word):
               f"{record['_source']['year_publication']}")
 
 
-def search_books(es_object, index, author, word):
+def search_books(es_object, author, word):
     """Вывод всех книг заданного автора, которые содержат заданную строку
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         author: автор
         word: строка
 
@@ -312,7 +308,7 @@ def search_books(es_object, index, author, word):
             }
         }
     }
-    res = searcher(es_object, index, body)
+    res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this word and author")
         exit(0)
@@ -322,12 +318,11 @@ def search_books(es_object, index, author, word):
               f" {record['_source']['year_publication']}")
 
 
-def search_date(es_object, index, from_date, until_date, word):
+def search_date(es_object, from_date, until_date, word):
     """Вывод всех книг из указанного диапазона годов, которые НЕ содержат заданную строку
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         from_date: начальный год
         until_date: конечный год
         word: строка
@@ -355,7 +350,7 @@ def search_date(es_object, index, from_date, until_date, word):
             }
         }
     }
-    res = searcher(es_object, index, body)
+    res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this word and date range")
         exit(0)
@@ -365,12 +360,11 @@ def search_date(es_object, index, from_date, until_date, word):
               f"{record['_source']['year_publication']}")
 
 
-def calc_date(es_object, index, author):
+def calc_date(es_object, author):
     """Вывод среднего арифметического для года издания заданного автора
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         author: автор
 
     Возвращаемые значения:
@@ -387,7 +381,7 @@ def calc_date(es_object, index, author):
             }
         }
     }
-    res = searcher(es_object, index, body)
+    res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this author")
         exit(0)
@@ -397,12 +391,11 @@ def calc_date(es_object, index, author):
     print(round(mean(years)))
 
 
-def search_by_year(es_object, index, year):
+def search_by_year(es_object, year):
     """Поиск книг по году
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         year: год публикации
 
     Возвращаемые значения:
@@ -420,7 +413,7 @@ def search_by_year(es_object, index, year):
             }
         }
     }
-    res = searcher(es_object, index, body)
+    res = searcher(es_object, body)
     if len(res['hits']['hits']) == 0:
         print("Not found for this year")
         exit(0)
@@ -430,12 +423,11 @@ def search_by_year(es_object, index, year):
     return ids
 
 
-def top_words(es_object, index, year):
+def top_words(es_object, year):
     """Вывод топ-10 самых популярных слов с количеством их упоминаний во всех книгах одного года
 
     Аргументы:
         es_object: объект подключения
-        index: название индекса
         year: год публикации
 
     Возвращаемые значения:
@@ -446,10 +438,10 @@ def top_words(es_object, index, year):
         "fields": ["text"]
     }
 
-    ids = search_by_year(es_object, index, year)
+    ids = search_by_year(es_object, year)
 
     for idi in ids:
-        res = es_object.termvectors(index=index, doc_type="document", id=idi, body=body)
+        res = es_object.termvectors(index=INDEX_NAME, doc_type="document", id=idi, body=body)
         for term in res['term_vectors']['text']['terms'].keys():
             if term in terms.keys():
                 terms[term] += res['term_vectors']['text']['terms'][term]['term_freq']
@@ -471,50 +463,49 @@ def top_words(es_object, index, year):
 def main():
     """Передача аргументов командной строки исполняемым функциям"""
     args = arg_parse()
-    index_name = '2018-3-09-doc-lr2'
     elastic = connect_elasticsearch('localhost', 9200)
     if args.command == 'create':
-        create_index(elastic, index_name)
+        create_index(elastic)
         exit(0)
     elif args.command == 'add-book':
         if args.second_command and args.name and args.author and args.year:
-            add_book(args.second_command, elastic, index_name, args.name, args.author, args.year)
+            add_book(args.second_command, elastic, args.name, args.author, args.year)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'add-books':
         if args.second_command:
-            add_books(args.second_command, elastic, index_name)
+            add_books(args.second_command, elastic)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'count-books-with-words':
         if args.second_command:
-            count_books_with_words(elastic, index_name, args.second_command)
+            count_books_with_words(elastic, args.second_command)
         else:
             print("No word")
             exit(1)
     elif args.command == 'search-books':
         if args.second_command and args.author:
-            search_books(elastic, index_name, args.author, args.second_command)
+            search_books(elastic, args.author, args.second_command)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'search-dates':
         if args.from_date and args.until_date and args.second_command:
-            search_date(elastic, index_name, args.from_date, args.until_date, args.second_command)
+            search_date(elastic, args.from_date, args.until_date, args.second_command)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'calc-date':
         if args.author:
-            calc_date(elastic, index_name, args.author)
+            calc_date(elastic, args.author)
         else:
             print("Error args")
             exit(1)
     elif args.command == 'top-words':
         if args.year:
-            top_words(elastic, index_name, args.year)
+            top_words(elastic, args.year)
         else:
             print("Error args")
             exit(1)
