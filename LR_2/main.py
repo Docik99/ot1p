@@ -1,8 +1,24 @@
-from elasticsearch6 import Elasticsearch
+"""
+Скрипт для работы с elasticsearch
+
+usage: main.py [-h] [-p PORT] [-s HOST] [-a AUTHOR] [-y YEAR] [-n NAME]
+               [-f FROM_DATE] [-u UNTIL_DATE] command [second_command]
+
+1) Создание индекса (create)
+2) Загрузка заданного файла (add-book)
+3) Загрузка всех файлов в каталоге (add-books)
+4) Поиск всех книг с заданным словом (count-books-with-words)
+5) Поиск всех книги заданного автора, которые содержат заданную строку (search-books)
+6) Поиск всех из указанного диапазона годов, которые НЕ содержат заданную строку (search-dates)
+7) Топ-10 самых популярных слов с количеством их упоминаний во всех книгах одного года (top-words)
+"""
+
 import os
 import argparse
 from statistics import mean
+
 from prettytable import PrettyTable
+from elasticsearch6 import Elasticsearch
 
 
 def arg_parse():
